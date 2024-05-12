@@ -1,6 +1,8 @@
 import time
+from pathlib import Path
 from typing import Tuple
 
+import click
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -12,7 +14,7 @@ BLUE_CHANNEL = 2
 def debayer_image_with_nearest_neighbor_iterative(
         bayer_image: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
 
-    new_image = np.zeros((bayer.shape[0], bayer.shape[1], 3))
+    new_image = np.zeros((bayer_image.shape[0], bayer_image.shape[1], 3))
     bayer_pattern = np.copy(new_image)
     image_rows, image_columns = bayer_image.shape
 
@@ -134,7 +136,7 @@ def debayer_image_with_nearest_neighbor_iterative(
 
 def debayer_image_with_nearest_neighbor_per_indexing(
         bayer_image: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
-    new_image = np.zeros((bayer.shape[0], bayer.shape[1], 3))
+    new_image = np.zeros((bayer_image.shape[0], bayer_image.shape[1], 3))
     bayer_pattern = np.copy(new_image)
 
     # Again ignoring the border
@@ -154,8 +156,8 @@ def debayer_image_with_nearest_neighbor_per_indexing(
         bayer_image[2:, :-2][1::2, 1::2].astype(int)) / 4  # +1 -1
 
     # Position = Green Pixel (G1)
-    new_image[1:-1, 1:-1, :][::2, 1::2,
-                             GREEN_CHANNEL] = bayer_image[1:-1, 1:-1][::2, 1::2]
+    new_image[1:-1, 1:-1, :][
+        ::2, 1::2, GREEN_CHANNEL] = bayer_image[1:-1, 1:-1][::2, 1::2]
     new_image[1:-1, 1:-1, :][::2, 1::2, RED_CHANNEL] = (
         bayer_image[2:, 1:-1][::2, 1::2].astype(int) +  # +1 0
         bayer_image[:-2, 1:-1][::2, 1::2].astype(int)) / 2  # -1 0
@@ -164,19 +166,18 @@ def debayer_image_with_nearest_neighbor_per_indexing(
         bayer_image[1:-1, :-2][::2, 1::2].astype(int)) / 2  # 0 -1
 
     # Position = Green Pixel (G2)
-    new_image[1:-1, 1:-1, :][1::2, ::2,
-                             GREEN_CHANNEL] = bayer_image[1:-1, 1:-1][1::2, ::2]
+    new_image[1:-1, 1:-1, :][
+        1::2, ::2, GREEN_CHANNEL] = bayer_image[1:-1, 1:-1][1::2, ::2]
     new_image[1:-1, 1:-1, :][1::2, ::2, RED_CHANNEL] = (
         bayer_image[1:-1, 2:][1::2, ::2].astype(int) +  # 0 +1
         bayer_image[1:-1, :-2][1::2, ::2].astype(int)) / 2  # 0 -1
     new_image[1:-1, 1:-1, :][1::2, ::2, BLUE_CHANNEL] = (
-        bayer[2:, 1:-1][1::2, ::2].astype(int) +  # +1 0
-        bayer[:-2, 1:-1][1::2, ::2].astype(int)  # -1 0
-    ) / 2
+        bayer_image[2:, 1:-1][1::2, ::2].astype(int) +  # +1 0
+        bayer_image[:-2, 1:-1][1::2, ::2].astype(int)) / 2  # -1 0
 
     # Position = Blue pixel (B1)
-    new_image[1:-1, 1:-1, :][::2, ::2,
-                             BLUE_CHANNEL] = bayer_image[1:-1, 1:-1][::2, ::2]
+    new_image[1:-1, 1:-1, :][
+        ::2, ::2, BLUE_CHANNEL] = bayer_image[1:-1, 1:-1][::2, ::2]
     new_image[1:-1, 1:-1, :][::2, ::2, GREEN_CHANNEL] = (
         bayer_image[:-2, 1:-1][::2, ::2].astype(int) +  # -1 0
         bayer_image[2:, 1:-1][::2, ::2].astype(int) +  # +1 0
@@ -224,12 +225,10 @@ def plot_debayered_image_and_pattern(
     plt.show()
 
 
-if __name__ == '__main__':
-    # bayer_file_path = '/home/uia59450/Schreibtisch/Lehrauftrag DHBW/2.bmp'
-    bayer_file_path = ('/Volumes/Macintosh HD/Users/matthiasnacken/Desktop/'
-                       'Lehrauftrag DHBW/T3ES9008_Bilddatenverarbeitung_und_Mustererkennung/Materialien/1.bmp')
-
-    bayer = plt.imread(bayer_file_path)
+@click.command()
+@click.argument('filename', type=click.Path(exists=True))
+def main(filename: Path) -> None:
+    bayer = plt.imread(filename)
 
     start = time.time_ns()
     image, pattern = debayer_image_with_nearest_neighbor_iterative(bayer_image=bayer)
@@ -244,3 +243,7 @@ if __name__ == '__main__':
     print(f'Speedup by Indexing instead of Looping {factor:.2f}x')
 
     plot_debayered_image_and_pattern(image, pattern)
+
+
+if __name__ == '__main__':
+    main()
