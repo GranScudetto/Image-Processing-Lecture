@@ -40,13 +40,13 @@ if __name__ == "__main__":
     grgb = get_color_filter_array(grgb_pattern, color_filter_array)
 
     fig, (filter_array_1, filter_array_2, filter_array_3) = plt.subplots(nrows=1, ncols=3, sharex='all', sharey='all')
-    filter_array_1.imshow(rggb)
+    filter_array_1.imshow(rggb.astype(int))
     filter_array_1.set_title(rggb_pattern)
 
-    filter_array_2.imshow(rgbr)
+    filter_array_2.imshow(rgbr.astype(int))
     filter_array_2.set_title(rgbr_pattern)
 
-    filter_array_3.imshow(grgb)
+    filter_array_3.imshow(grgb.astype(int))
     filter_array_3.set_title(grgb_pattern)
 
     plt.show()
