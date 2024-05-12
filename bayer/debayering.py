@@ -1,15 +1,16 @@
+import time
 from typing import Tuple
-import matplotlib as mpl
+
 import matplotlib.pyplot as plt
 import numpy as np
-
 
 RED_CHANNEL = 0
 GREEN_CHANNEL = 1
 BLUE_CHANNEL = 2
 
 
-def debayer_image_iterative(bayer_image: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+def debayer_image_with_nearest_neighbor_iterative(
+        bayer_image: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
 
     new_image = np.zeros((bayer.shape[0], bayer.shape[1], 3))
     bayer_pattern = np.copy(new_image)
@@ -24,7 +25,8 @@ def debayer_image_iterative(bayer_image: np.ndarray) -> Tuple[np.ndarray, np.nda
             #   |   |-------|-------|
             #  \|/  |   G   |   B   |
 
-            if row % 2 == 0:  # odd row (starts with index 0 (0, 2, 4, 6, ...)) => either R or G
+            # odd row (starts with index 0 (0, 2, 4, 6, ...)) => either R or G
+            if row % 2 == 0:
                 # |   R   |   G   |
                 # |-------|-------|
                 # |       |       |
@@ -33,7 +35,8 @@ def debayer_image_iterative(bayer_image: np.ndarray) -> Tuple[np.ndarray, np.nda
                     # |    |    |    |   read Green Pixel Value
                     # |    |  G |    |
                     # |    |    |    |
-                    new_image[row, column, GREEN_CHANNEL] = bayer_image[row, column]
+                    new_image[row, column,
+                              GREEN_CHANNEL] = bayer_image[row, column]
                     bayer_pattern[row, column, GREEN_CHANNEL] = 1
 
                     # |    |     |    |   interpolate red channel value
@@ -54,7 +57,8 @@ def debayer_image_iterative(bayer_image: np.ndarray) -> Tuple[np.ndarray, np.nda
                     # |    |    |    |   read Red Pixel Value
                     # |    |  R |    |
                     # |    |    |    |
-                    new_image[row, column, RED_CHANNEL] = bayer_image[row, column]
+                    new_image[row, column,
+                              RED_CHANNEL] = bayer_image[row, column]
                     bayer_pattern[row, column, RED_CHANNEL] = 1
 
                     # |    |  X  |    |   interpolate green channel value
@@ -82,7 +86,8 @@ def debayer_image_iterative(bayer_image: np.ndarray) -> Tuple[np.ndarray, np.nda
                     # |    |    |    |   read Blue Pixel Value
                     # |    |  B |    |
                     # |    |    |    |
-                    new_image[row, column, BLUE_CHANNEL] = bayer_image[row, column]
+                    new_image[row, column,
+                              BLUE_CHANNEL] = bayer_image[row, column]
                     bayer_pattern[row, column, BLUE_CHANNEL] = 1
 
                     # | X  |     |  X |   interpolate red channel value
@@ -106,7 +111,8 @@ def debayer_image_iterative(bayer_image: np.ndarray) -> Tuple[np.ndarray, np.nda
                     # |    |    |    |   read Green Pixel Value
                     # |    |  G |    |
                     # |    |    |    |
-                    new_image[row, column, GREEN_CHANNEL] = bayer_image[row, column]
+                    new_image[row, column,
+                              GREEN_CHANNEL] = bayer_image[row, column]
                     bayer_pattern[row, column, GREEN_CHANNEL] = 1
 
                     # |    |  X  |    |   interpolate red channel value
@@ -120,62 +126,67 @@ def debayer_image_iterative(bayer_image: np.ndarray) -> Tuple[np.ndarray, np.nda
                     # | X  |  G  |  X |
                     # |    |     |    |
                     new_image[row, column, BLUE_CHANNEL] = (int(
-                        bayer_image[row, column-1]) + int(
-                        bayer_image[row, column+1])) / 2
+                        bayer_image[row, column - 1]) + int(
+                        bayer_image[row, column + 1])) / 2
 
     return new_image, bayer_pattern
 
 
-def debayer_image_per_indexing(bayer_image: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+def debayer_image_with_nearest_neighbor_per_indexing(
+        bayer_image: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
     new_image = np.zeros((bayer.shape[0], bayer.shape[1], 3))
     bayer_pattern = np.copy(new_image)
 
     # Again ignoring the border
     # reading the corresponding RGB values from their position in the bayer pattern
     # Position = Red Pixel (R1)
-    new_image[1:-1, 1:-1, :][1::2, 1::2, RED_CHANNEL] = bayer_image[1:-1, 1:-1][1::2, 1::2]
+    new_image[1:-1, 1:-1, :][1::2, 1::2,
+                             RED_CHANNEL] = bayer_image[1:-1, 1:-1][1::2, 1::2]
     new_image[1:-1, 1:-1, :][1::2, 1::2, GREEN_CHANNEL] = (
-                        bayer_image[:-2, 1:-1][1::2, 1::2].astype(int) +  # -1 0
-                        bayer_image[2:, 1:-1][1::2, 1::2].astype(int) +  # +1 0
-                        bayer_image[1:-1, :-2][1::2, 1::2].astype(int) +  # 0 -1
-                        bayer_image[1:-1, 2:][1::2, 1::2].astype(int)) / 4  # 0 +1
+        bayer_image[:-2, 1:-1][1::2, 1::2].astype(int) +  # -1 0
+        bayer_image[2:, 1:-1][1::2, 1::2].astype(int) +  # +1 0
+        bayer_image[1:-1, :-2][1::2, 1::2].astype(int) +  # 0 -1
+        bayer_image[1:-1, 2:][1::2, 1::2].astype(int)) / 4  # 0 +1
     new_image[1:-1, 1:-1, :][1::2, 1::2, BLUE_CHANNEL] = (
-                        bayer_image[:-2, :-2][1::2, 1::2].astype(int) +  # -1 -1
-                        bayer_image[:-2, 2:][1::2, 1::2].astype(int) +  # -1 +1
-                        bayer_image[2:, 2:][1::2, 1::2].astype(int) +  # +1 +1
-                        bayer_image[2:, :-2][1::2, 1::2].astype(int)) / 4  # +1 -1
+        bayer_image[:-2, :-2][1::2, 1::2].astype(int) +  # -1 -1
+        bayer_image[:-2, 2:][1::2, 1::2].astype(int) +  # -1 +1
+        bayer_image[2:, 2:][1::2, 1::2].astype(int) +  # +1 +1
+        bayer_image[2:, :-2][1::2, 1::2].astype(int)) / 4  # +1 -1
 
     # Position = Green Pixel (G1)
-    new_image[1:-1, 1:-1, :][::2, 1::2, GREEN_CHANNEL] = bayer_image[1:-1, 1:-1][::2, 1::2]
+    new_image[1:-1, 1:-1, :][::2, 1::2,
+                             GREEN_CHANNEL] = bayer_image[1:-1, 1:-1][::2, 1::2]
     new_image[1:-1, 1:-1, :][::2, 1::2, RED_CHANNEL] = (
-                        bayer_image[2:, 1:-1][::2, 1::2].astype(int) +  # +1 0
-                        bayer_image[:-2, 1:-1][::2, 1::2].astype(int)) / 2  # -1 0
+        bayer_image[2:, 1:-1][::2, 1::2].astype(int) +  # +1 0
+        bayer_image[:-2, 1:-1][::2, 1::2].astype(int)) / 2  # -1 0
     new_image[1:-1, 1:-1, :][::2, 1::2, BLUE_CHANNEL] = (
-            bayer_image[1:-1, 2:][::2, 1::2].astype(int) +  # 0 +1
-            bayer_image[1:-1, :-2][::2, 1::2].astype(int)) / 2  # 0 -1
+        bayer_image[1:-1, 2:][::2, 1::2].astype(int) +  # 0 +1
+        bayer_image[1:-1, :-2][::2, 1::2].astype(int)) / 2  # 0 -1
 
     # Position = Green Pixel (G2)
-    new_image[1:-1, 1:-1, :][1::2, ::2, GREEN_CHANNEL] = bayer_image[1:-1, 1:-1][1::2, ::2]
+    new_image[1:-1, 1:-1, :][1::2, ::2,
+                             GREEN_CHANNEL] = bayer_image[1:-1, 1:-1][1::2, ::2]
     new_image[1:-1, 1:-1, :][1::2, ::2, RED_CHANNEL] = (
-                        bayer_image[1:-1, 2:][1::2, ::2].astype(int) +  # 0 +1
-                        bayer_image[1:-1, :-2][1::2, ::2].astype(int)) / 2  # 0 -1
+        bayer_image[1:-1, 2:][1::2, ::2].astype(int) +  # 0 +1
+        bayer_image[1:-1, :-2][1::2, ::2].astype(int)) / 2  # 0 -1
     new_image[1:-1, 1:-1, :][1::2, ::2, BLUE_CHANNEL] = (
         bayer[2:, 1:-1][1::2, ::2].astype(int) +  # +1 0
-        bayer[:-2, 1:-1][1::2,::2].astype(int)  # -1 0
+        bayer[:-2, 1:-1][1::2, ::2].astype(int)  # -1 0
     ) / 2
 
     # Position = Blue pixel (B1)
-    new_image[1:-1, 1:-1, :][::2, ::2, BLUE_CHANNEL] = bayer_image[1:-1, 1:-1][::2, ::2]
+    new_image[1:-1, 1:-1, :][::2, ::2,
+                             BLUE_CHANNEL] = bayer_image[1:-1, 1:-1][::2, ::2]
     new_image[1:-1, 1:-1, :][::2, ::2, GREEN_CHANNEL] = (
-                        bayer_image[:-2, 1:-1][::2, ::2].astype(int) +  # -1 0
-                        bayer_image[2:, 1:-1][::2, ::2].astype(int) +  # +1 0
-                        bayer_image[1:-1, :-2][::2, ::2].astype(int) +  # 0 -1
-                        bayer_image[1:-1, 2:][::2, ::2].astype(int)) / 4  # 0 +1
+        bayer_image[:-2, 1:-1][::2, ::2].astype(int) +  # -1 0
+        bayer_image[2:, 1:-1][::2, ::2].astype(int) +  # +1 0
+        bayer_image[1:-1, :-2][::2, ::2].astype(int) +  # 0 -1
+        bayer_image[1:-1, 2:][::2, ::2].astype(int)) / 4  # 0 +1
     new_image[1:-1, 1:-1, :][::2, ::2, RED_CHANNEL] = (
-                        bayer_image[:-2, :-2][::2, ::2].astype(int) +  # -1 -1
-                        bayer_image[:-2, 2:][::2, ::2].astype(int) +  # -1 + 1
-                        bayer_image[2:, 2:][::2, ::2].astype(int) +  # +1 +1
-                        bayer_image[2:, :-2][::2, ::2].astype(int)) / 4  # +1 -1
+        bayer_image[:-2, :-2][::2, ::2].astype(int) +  # -1 -1
+        bayer_image[:-2, 2:][::2, ::2].astype(int) +  # -1 + 1
+        bayer_image[2:, 2:][::2, ::2].astype(int) +  # +1 +1
+        bayer_image[2:, :-2][::2, ::2].astype(int)) / 4  # +1 -1
 
     # store bayer pattern for reference (due to the border ::2 -> 1::2 and vice versa
     # R = ::2, ::2, # G1 = 1::2, ::2, # G2 = ::2, 1::2, # B = 1::2, 1::2
@@ -187,11 +198,13 @@ def debayer_image_per_indexing(bayer_image: np.ndarray) -> Tuple[np.ndarray, np.
     return new_image, bayer_pattern
 
 
-def plot_debayered_image_and_pattern(debayered_image: np.ndarray, pattern: np.ndarray) -> None:
+def plot_debayered_image_and_pattern(
+        debayered_image: np.ndarray,
+        pattern: np.ndarray) -> None:
     image = debayered_image[1:-1, 1:-1, :]
     second_image = pattern[1:-1, 1:-1, :]
 
-    fig, ax = plt.subplots(2, 3, sharex='all', sharey='all')
+    fig, ax = plt.subplots(nrows=2, ncols=3, sharex='all', sharey='all')
 
     ax[0, 0].imshow(image[:, :, 0], cmap='gray')
     ax[0, 0].set_title('Red Channel')
@@ -201,7 +214,7 @@ def plot_debayered_image_and_pattern(debayered_image: np.ndarray, pattern: np.nd
     ax[0, 2].set_title('Blue Channel')
 
     print(np.max(image), np.min(image))
-    ax[1, 1].imshow(np.array(image/255.))
+    ax[1, 1].imshow(np.array(image / 255.))
     ax[1, 1].set_title('Combined (R, G, B)')
 
     ax[1, 0].imshow(second_image)
@@ -213,9 +226,21 @@ def plot_debayered_image_and_pattern(debayered_image: np.ndarray, pattern: np.nd
 
 if __name__ == '__main__':
     # bayer_file_path = '/home/uia59450/Schreibtisch/Lehrauftrag DHBW/2.bmp'
-    bayer_file_path = '/Volumes/Macintosh HD/Users/matthiasnacken/Desktop/Lehrauftrag DHBW/T3ES9008_Bilddatenverarbeitung_und_Mustererkennung/Materialien/1.bmp'
+    bayer_file_path = ('/Volumes/Macintosh HD/Users/matthiasnacken/Desktop/'
+                       'Lehrauftrag DHBW/T3ES9008_Bilddatenverarbeitung_und_Mustererkennung/Materialien/1.bmp')
 
     bayer = plt.imread(bayer_file_path)
-    # image, pattern = debayer_image_iterative(bayer_image=bayer)
-    image, pattern = debayer_image_per_indexing(bayer_image=bayer)
+
+    start = time.time_ns()
+    image, pattern = debayer_image_with_nearest_neighbor_iterative(bayer_image=bayer)
+    end_iterative = time.time_ns()
+
+    image, pattern = debayer_image_with_nearest_neighbor_per_indexing(bayer_image=bayer)
+    end_indexing = time.time_ns()
+
+    duration_iterative = end_iterative - start
+    duration_index = end_indexing - end_iterative
+    factor = duration_iterative / duration_index
+    print(f'Speedup by Indexing instead of Looping {factor:.2f}x')
+
     plot_debayered_image_and_pattern(image, pattern)
