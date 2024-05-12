@@ -11,19 +11,23 @@ def get_color_filter_array(pattern: str, array: np.ndarray) -> np.ndarray:
 
     #  odd rows, odd columns | X |   |
     #                        |   |   |
-    bayer[::2, ::2, COLOR_FILTER_TO_CHANNEL[pattern[0]]] = 255  # f.e. Red (RGGB)
+    # f.e. Red (RGGB)
+    bayer[::2, ::2, COLOR_FILTER_TO_CHANNEL[pattern[0]]] = 255
 
     # odd rows, even columns |   | X |
     #                        |   |   |
-    bayer[::2, 1::2, COLOR_FILTER_TO_CHANNEL[pattern[1]]] = 255  # f.e. Green (RGGB)
+    # f.e. Green (RGGB)
+    bayer[::2, 1::2, COLOR_FILTER_TO_CHANNEL[pattern[1]]] = 255
 
     # even rows, odd columns |   |   |
     #                        | X |   |
-    bayer[1::2, ::2, COLOR_FILTER_TO_CHANNEL[pattern[2]]] = 255  # f.e. Green (RGGB)
+    # f.e. Green (RGGB)
+    bayer[1::2, ::2, COLOR_FILTER_TO_CHANNEL[pattern[2]]] = 255
 
     # even rows, even columns |   |   |
     #                         |   | X |
-    bayer[1::2, 1::2, COLOR_FILTER_TO_CHANNEL[pattern[3]]] = 255  # f.e. Blue (RGGB)
+    # f.e. Blue (RGGB)
+    bayer[1::2, 1::2, COLOR_FILTER_TO_CHANNEL[pattern[3]]] = 255
 
     return bayer
 
@@ -38,7 +42,8 @@ if __name__ == "__main__":
     rgbr = get_color_filter_array(rgbr_pattern, color_filter_array)
     grgb = get_color_filter_array(grgb_pattern, color_filter_array)
 
-    fig, (filter_array_1, filter_array_2, filter_array_3) = plt.subplots(nrows=1, ncols=3, sharex='all', sharey='all')
+    fig, (filter_array_1, filter_array_2, filter_array_3) = plt.subplots(
+        nrows=1, ncols=3, sharex='all', sharey='all')
     filter_array_1.imshow(rggb.astype(int))
     filter_array_1.set_title(rggb_pattern)
 

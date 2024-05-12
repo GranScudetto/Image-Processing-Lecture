@@ -211,49 +211,49 @@ def debayer_rgb_image_with_nearest_neighbor_per_indexing(
     new_image[1:-1, 1:-1, :][1::2, 1::2,
                              RED_CHANNEL] = bayer_image[1:-1, 1:-1, :][1::2, 1::2, RED_CHANNEL]
     new_image[1:-1, 1:-1, :][1::2, 1::2, GREEN_CHANNEL] = (
-        bayer_image[:-2, 1:-1, :][1::2, 1::2, GREEN_CHANNEL]  +  # -1 0
-        bayer_image[2:, 1:-1, :][1::2, 1::2, GREEN_CHANNEL]  +  # +1 0
-        bayer_image[1:-1, :-2, :][1::2, 1::2, GREEN_CHANNEL]  +  # 0 -1
-        bayer_image[1:-1, 2:, :][1::2, 1::2, GREEN_CHANNEL] ) / 4  # 0 +1
+        bayer_image[:-2, 1:-1, :][1::2, 1::2, GREEN_CHANNEL] +  # -1 0
+        bayer_image[2:, 1:-1, :][1::2, 1::2, GREEN_CHANNEL] +  # +1 0
+        bayer_image[1:-1, :-2, :][1::2, 1::2, GREEN_CHANNEL] +  # 0 -1
+        bayer_image[1:-1, 2:, :][1::2, 1::2, GREEN_CHANNEL]) / 4  # 0 +1
     new_image[1:-1, 1:-1, :][1::2, 1::2, BLUE_CHANNEL] = (
-        bayer_image[:-2, :-2, :][1::2, 1::2, BLUE_CHANNEL]  +  # -1 -1
-        bayer_image[:-2, 2:, :][1::2, 1::2, BLUE_CHANNEL]  +  # -1 +1
-        bayer_image[2:, 2:, :][1::2, 1::2, BLUE_CHANNEL]  +  # +1 +1
-        bayer_image[2:, :-2, :][1::2, 1::2, BLUE_CHANNEL] ) / 4  # +1 -1
+        bayer_image[:-2, :-2, :][1::2, 1::2, BLUE_CHANNEL] +  # -1 -1
+        bayer_image[:-2, 2:, :][1::2, 1::2, BLUE_CHANNEL] +  # -1 +1
+        bayer_image[2:, 2:, :][1::2, 1::2, BLUE_CHANNEL] +  # +1 +1
+        bayer_image[2:, :-2, :][1::2, 1::2, BLUE_CHANNEL]) / 4  # +1 -1
 
     # Position = Green Pixel (G1)
     new_image[1:-1, 1:-1, :][
         ::2, 1::2, GREEN_CHANNEL] = bayer_image[1:-1, 1:-1, :][::2, 1::2, GREEN_CHANNEL]
     new_image[1:-1, 1:-1, :][::2, 1::2, RED_CHANNEL] = (
-        bayer_image[2:, 1:-1, :][::2, 1::2, RED_CHANNEL]  +  # +1 0
-        bayer_image[:-2, 1:-1, :][::2, 1::2, RED_CHANNEL] ) / 2  # -1 0
+        bayer_image[2:, 1:-1, :][::2, 1::2, RED_CHANNEL] +  # +1 0
+        bayer_image[:-2, 1:-1, :][::2, 1::2, RED_CHANNEL]) / 2  # -1 0
     new_image[1:-1, 1:-1, :][::2, 1::2, BLUE_CHANNEL] = (
-        bayer_image[1:-1, 2:, :][::2, 1::2, BLUE_CHANNEL]  +  # 0 +1
-        bayer_image[1:-1, :-2, :][::2, 1::2, BLUE_CHANNEL] ) / 2  # 0 -1
+        bayer_image[1:-1, 2:, :][::2, 1::2, BLUE_CHANNEL] +  # 0 +1
+        bayer_image[1:-1, :-2, :][::2, 1::2, BLUE_CHANNEL]) / 2  # 0 -1
 
     # Position = Green Pixel (G2)
     new_image[1:-1, 1:-1, :][
         1::2, ::2, GREEN_CHANNEL] = bayer_image[1:-1, 1:-1, :][1::2, ::2, GREEN_CHANNEL]
     new_image[1:-1, 1:-1, :][1::2, ::2, RED_CHANNEL] = (
-        bayer_image[1:-1, 2:, :][1::2, ::2, RED_CHANNEL]  +  # 0 +1
-        bayer_image[1:-1, :-2, :][1::2, ::2, RED_CHANNEL] ) / 2  # 0 -1
+        bayer_image[1:-1, 2:, :][1::2, ::2, RED_CHANNEL] +  # 0 +1
+        bayer_image[1:-1, :-2, :][1::2, ::2, RED_CHANNEL]) / 2  # 0 -1
     new_image[1:-1, 1:-1, :][1::2, ::2, BLUE_CHANNEL] = (
-        bayer_image[2:, 1:-1, :][1::2, ::2, BLUE_CHANNEL]  +  # +1 0
-        bayer_image[:-2, 1:-1, :][1::2, ::2, BLUE_CHANNEL] ) / 2  # -1 0
+        bayer_image[2:, 1:-1, :][1::2, ::2, BLUE_CHANNEL] +  # +1 0
+        bayer_image[:-2, 1:-1, :][1::2, ::2, BLUE_CHANNEL]) / 2  # -1 0
 
     # Position = Blue pixel (B1)
     new_image[1:-1, 1:-1, :][
         ::2, ::2, BLUE_CHANNEL] = bayer_image[1:-1, 1:-1, :][::2, ::2, BLUE_CHANNEL]
     new_image[1:-1, 1:-1, :][::2, ::2, GREEN_CHANNEL] = (
-        bayer_image[:-2, 1:-1, :][::2, ::2, GREEN_CHANNEL]  +  # -1 0
-        bayer_image[2:, 1:-1, :][::2, ::2, GREEN_CHANNEL]  +  # +1 0
-        bayer_image[1:-1, :-2, :][::2, ::2, GREEN_CHANNEL]  +  # 0 -1
-        bayer_image[1:-1, 2:, :][::2, ::2, GREEN_CHANNEL] ) / 4  # 0 +1
+        bayer_image[:-2, 1:-1, :][::2, ::2, GREEN_CHANNEL] +  # -1 0
+        bayer_image[2:, 1:-1, :][::2, ::2, GREEN_CHANNEL] +  # +1 0
+        bayer_image[1:-1, :-2, :][::2, ::2, GREEN_CHANNEL] +  # 0 -1
+        bayer_image[1:-1, 2:, :][::2, ::2, GREEN_CHANNEL]) / 4  # 0 +1
     new_image[1:-1, 1:-1, :][::2, ::2, RED_CHANNEL] = (
-        bayer_image[:-2, :-2, :][::2, ::2, RED_CHANNEL]  +  # -1 -1
-        bayer_image[:-2, 2:, :][::2, ::2, RED_CHANNEL]  +  # -1 + 1
-        bayer_image[2:, 2:, :][::2, ::2, RED_CHANNEL]  +  # +1 +1
-        bayer_image[2:, :-2, :][::2, ::2, RED_CHANNEL] ) / 4  # +1 -1
+        bayer_image[:-2, :-2, :][::2, ::2, RED_CHANNEL] +  # -1 -1
+        bayer_image[:-2, 2:, :][::2, ::2, RED_CHANNEL] +  # -1 + 1
+        bayer_image[2:, 2:, :][::2, ::2, RED_CHANNEL] +  # +1 +1
+        bayer_image[2:, :-2, :][::2, ::2, RED_CHANNEL]) / 4  # +1 -1
 
     # store bayer pattern for reference (due to the border ::2 -> 1::2 and vice versa
     # R = ::2, ::2, # G1 = 1::2, ::2, # G2 = ::2, 1::2, # B = 1::2, 1::2
@@ -297,10 +297,12 @@ def main(filename: Path) -> None:
     bayer = plt.imread(filename)
 
     start = time.time_ns()
-    image, pattern = debayer_image_with_nearest_neighbor_iterative(bayer_image=bayer)
+    image, pattern = debayer_image_with_nearest_neighbor_iterative(
+        bayer_image=bayer)
     end_iterative = time.time_ns()
 
-    image, pattern = debayer_image_with_nearest_neighbor_per_indexing(bayer_image=bayer)
+    image, pattern = debayer_image_with_nearest_neighbor_per_indexing(
+        bayer_image=bayer)
     end_indexing = time.time_ns()
 
     duration_iterative = end_iterative - start
