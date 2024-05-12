@@ -1,6 +1,5 @@
-import numpy as np
 import matplotlib.pyplot as plt
-
+import numpy as np
 
 COLOR_FILTER_TO_CHANNEL = {'R': 0, 'G': 1, 'B': 2}
 

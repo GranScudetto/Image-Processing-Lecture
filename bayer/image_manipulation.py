@@ -1,6 +1,5 @@
-import numpy as np
 import matplotlib.pyplot as plt
-
+import numpy as np
 from debayering import debayer_rgb_image_with_nearest_neighbor_per_indexing
 
 image = plt.imread('debayered3.png')
