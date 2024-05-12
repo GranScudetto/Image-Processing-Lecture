@@ -1,5 +1,5 @@
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 
 
 def stripe_pattern(size: int) -> np.ndarray:
@@ -8,7 +8,7 @@ def stripe_pattern(size: int) -> np.ndarray:
     return array
 
 
-def gray_scale(bit_depth:int=8) -> np.ndarray:
+def gray_scale(bit_depth: int = 8) -> np.ndarray:
     max_val = 2**bit_depth
     array = np.zeros((max_val, max_val))
     for column in range(array.shape[1]):

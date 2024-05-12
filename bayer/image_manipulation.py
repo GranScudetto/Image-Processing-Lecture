@@ -1,5 +1,6 @@
-import click
 from pathlib import Path
+
+import click
 import matplotlib.pyplot as plt
 import numpy as np
 from debayering import debayer_rgb_image_with_nearest_neighbor_per_indexing
@@ -9,14 +10,16 @@ def check_for_manipulation(suspicious_image: np.ndarray) -> None:
     image_debayered, _ = debayer_rgb_image_with_nearest_neighbor_per_indexing(
         suspicious_image)
     # check if the "bayer" correlation still holds true
-    is_close = np.isclose(suspicious_image[:, :, :3], image_debayered[:, :, :], atol=5e-3)
+    is_close = np.isclose(
+        suspicious_image[:, :, :3], image_debayered[:, :, :], atol=5e-3)
 
     # set True to False and False to True to reflect the manipulation instead of that the values are close
     manipulated = np.invert(is_close)
     # Sum along the R, G, B Channels
     coordinates = np.sum(manipulated, axis=2)
     # highlight each image position wether it is R, G or B with a 1
-    positions = np.zeros((suspicious_image.shape[0], suspicious_image.shape[1]))
+    positions = np.zeros(
+        (suspicious_image.shape[0], suspicious_image.shape[1]))
     positions[np.where(coordinates > 0)] = 1
 
     fig, axes = plt.subplots(nrows=2, ncols=3, sharey='all', sharex='all')
