@@ -10,9 +10,12 @@ def check_for_manipulation(suspicious_image: np.ndarray) -> None:
         suspicious_image)
     # check if the "bayer" correlation still holds true
     is_close = np.isclose(suspicious_image[:, :, :3], image_debayered[:, :, :], atol=5e-3)
+
     # set True to False and False to True to reflect the manipulation instead of that the values are close
     manipulated = np.invert(is_close)
+    # Sum along the R, G, B Channels
     coordinates = np.sum(manipulated, axis=2)
+    # highlight each image position wether it is R, G or B with a 1
     positions = np.zeros((suspicious_image.shape[0], suspicious_image.shape[1]))
     positions[np.where(coordinates > 0)] = 1
 

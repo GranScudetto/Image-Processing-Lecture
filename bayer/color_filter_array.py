@@ -1,3 +1,4 @@
+import click
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -32,7 +33,19 @@ def get_color_filter_array(pattern: str, array: np.ndarray) -> np.ndarray:
     return bayer
 
 
-if __name__ == "__main__":
+@click.command()
+@click.argument('pattern', type=click.STRING, default='RGGB')
+@click.argument('dimension', type=click.INT)
+def interactive_color_filter(pattern: str, dimension: int) -> None:
+    assert len(pattern) == 4
+    assert dimension % 2 == 0
+    color_filter = np.zeros((dimension, dimension))
+    mosaic = get_color_filter_array(pattern, color_filter)
+    plt.imshow(mosaic)
+    plt.show()
+
+
+def plot_group_of_color_filters() -> None:
     rggb_pattern = 'RGGB'
     rgbr_pattern = 'RGBR'
     grgb_pattern = 'GRGB'
@@ -54,3 +67,8 @@ if __name__ == "__main__":
     filter_array_3.set_title(grgb_pattern)
 
     plt.show()
+
+
+if __name__ == "__main__":
+    plot_group_of_color_filters()
+    # interactive_color_filter()
