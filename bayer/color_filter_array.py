@@ -70,5 +70,5 @@ def plot_group_of_color_filters() -> None:
 
 
 if __name__ == "__main__":
-    plot_group_of_color_filters()
-    # interactive_color_filter()
+    # plot_group_of_color_filters()
+    interactive_color_filter()
