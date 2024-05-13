@@ -1,9 +1,79 @@
 from pathlib import Path
+from typing import Tuple
 
 import click
 import matplotlib.pyplot as plt
 import numpy as np
-from debayering import debayer_rgb_image_with_nearest_neighbor_per_indexing
+
+RED_CHANNEL = 0
+GREEN_CHANNEL = 1
+BLUE_CHANNEL = 2
+
+
+def debayer_rgb_image_with_nearest_neighbor_per_indexing(
+        bayer_image: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+    # Variant of the upper function with rgb images as input
+    new_image = np.zeros((bayer_image.shape[0], bayer_image.shape[1], 3))
+    bayer_pattern = np.copy(new_image)
+
+    # Again ignoring the border
+    # reading the corresponding RGB values from their position in the bayer pattern
+    # Position = Red Pixel (R1)
+    new_image[1:-1, 1:-1, :][1::2, 1::2,
+                             RED_CHANNEL] = bayer_image[1:-1, 1:-1, :][1::2, 1::2, RED_CHANNEL]
+    new_image[1:-1, 1:-1, :][1::2, 1::2, GREEN_CHANNEL] = (
+        bayer_image[:-2, 1:-1, :][1::2, 1::2, GREEN_CHANNEL] +  # -1 0
+        bayer_image[2:, 1:-1, :][1::2, 1::2, GREEN_CHANNEL] +  # +1 0
+        bayer_image[1:-1, :-2, :][1::2, 1::2, GREEN_CHANNEL] +  # 0 -1
+        bayer_image[1:-1, 2:, :][1::2, 1::2, GREEN_CHANNEL]) / 4  # 0 +1
+    new_image[1:-1, 1:-1, :][1::2, 1::2, BLUE_CHANNEL] = (
+        bayer_image[:-2, :-2, :][1::2, 1::2, BLUE_CHANNEL] +  # -1 -1
+        bayer_image[:-2, 2:, :][1::2, 1::2, BLUE_CHANNEL] +  # -1 +1
+        bayer_image[2:, 2:, :][1::2, 1::2, BLUE_CHANNEL] +  # +1 +1
+        bayer_image[2:, :-2, :][1::2, 1::2, BLUE_CHANNEL]) / 4  # +1 -1
+
+    # Position = Green Pixel (G1)
+    new_image[1:-1, 1:-1, :][
+        ::2, 1::2, GREEN_CHANNEL] = bayer_image[1:-1, 1:-1, :][::2, 1::2, GREEN_CHANNEL]
+    new_image[1:-1, 1:-1, :][::2, 1::2, RED_CHANNEL] = (
+        bayer_image[2:, 1:-1, :][::2, 1::2, RED_CHANNEL] +  # +1 0
+        bayer_image[:-2, 1:-1, :][::2, 1::2, RED_CHANNEL]) / 2  # -1 0
+    new_image[1:-1, 1:-1, :][::2, 1::2, BLUE_CHANNEL] = (
+        bayer_image[1:-1, 2:, :][::2, 1::2, BLUE_CHANNEL] +  # 0 +1
+        bayer_image[1:-1, :-2, :][::2, 1::2, BLUE_CHANNEL]) / 2  # 0 -1
+
+    # Position = Green Pixel (G2)
+    new_image[1:-1, 1:-1, :][
+        1::2, ::2, GREEN_CHANNEL] = bayer_image[1:-1, 1:-1, :][1::2, ::2, GREEN_CHANNEL]
+    new_image[1:-1, 1:-1, :][1::2, ::2, RED_CHANNEL] = (
+        bayer_image[1:-1, 2:, :][1::2, ::2, RED_CHANNEL] +  # 0 +1
+        bayer_image[1:-1, :-2, :][1::2, ::2, RED_CHANNEL]) / 2  # 0 -1
+    new_image[1:-1, 1:-1, :][1::2, ::2, BLUE_CHANNEL] = (
+        bayer_image[2:, 1:-1, :][1::2, ::2, BLUE_CHANNEL] +  # +1 0
+        bayer_image[:-2, 1:-1, :][1::2, ::2, BLUE_CHANNEL]) / 2  # -1 0
+
+    # Position = Blue pixel (B1)
+    new_image[1:-1, 1:-1, :][
+        ::2, ::2, BLUE_CHANNEL] = bayer_image[1:-1, 1:-1, :][::2, ::2, BLUE_CHANNEL]
+    new_image[1:-1, 1:-1, :][::2, ::2, GREEN_CHANNEL] = (
+        bayer_image[:-2, 1:-1, :][::2, ::2, GREEN_CHANNEL] +  # -1 0
+        bayer_image[2:, 1:-1, :][::2, ::2, GREEN_CHANNEL] +  # +1 0
+        bayer_image[1:-1, :-2, :][::2, ::2, GREEN_CHANNEL] +  # 0 -1
+        bayer_image[1:-1, 2:, :][::2, ::2, GREEN_CHANNEL]) / 4  # 0 +1
+    new_image[1:-1, 1:-1, :][::2, ::2, RED_CHANNEL] = (
+        bayer_image[:-2, :-2, :][::2, ::2, RED_CHANNEL] +  # -1 -1
+        bayer_image[:-2, 2:, :][::2, ::2, RED_CHANNEL] +  # -1 + 1
+        bayer_image[2:, 2:, :][::2, ::2, RED_CHANNEL] +  # +1 +1
+        bayer_image[2:, :-2, :][::2, ::2, RED_CHANNEL]) / 4  # +1 -1
+
+    # store bayer pattern for reference (due to the border ::2 -> 1::2 and vice versa
+    # R = ::2, ::2, # G1 = 1::2, ::2, # G2 = ::2, 1::2, # B = 1::2, 1::2
+    bayer_pattern[1:-1, 1:-1, :][1::2, 1::2, RED_CHANNEL] = 1
+    bayer_pattern[1:-1, 1:-1, :][::2, 1::2, GREEN_CHANNEL] = 1
+    bayer_pattern[1:-1, 1:-1, :][1::2, ::2, GREEN_CHANNEL] = 1
+    bayer_pattern[1:-1, 1:-1, :][::2, ::2, BLUE_CHANNEL] = 1
+
+    return new_image, bayer_pattern
 
 
 def check_for_manipulation(suspicious_image: np.ndarray) -> None:
@@ -46,3 +116,4 @@ def main(filename: Path) -> None:
 
 if __name__ == '__main__':
     main()
+
