@@ -38,7 +38,8 @@ def sobel_filter(image: np.ndarray, threshold: int) -> np.ndarray:
                         sobel_y[2, 1] * image[row + 1, column] +
                         sobel_y[2, 2] * image[row + 1, column + 1])
 
-            result[row, column] = np.sqrt(np.square(horizontal) + np.square(vertical))
+            result[row, column] = np.sqrt(
+                np.square(horizontal) + np.square(vertical))
 
     return np.where(result > threshold, 1, 0)
 

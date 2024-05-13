@@ -67,7 +67,7 @@ def gray_value_along_h_line_thresholding(
     central_diff = central_difference(row_values)
     absolute_value = np.abs(central_diff)
     position = np.where(absolute_value > threshold)
-    thresholded = np.where(absolute_value>threshold, 1, 0)
+    thresholded = np.where(absolute_value > threshold, 1, 0)
 
     highlighted_image_color = gray_to_rgb(highlighted_image)
 
@@ -77,7 +77,8 @@ def gray_value_along_h_line_thresholding(
     highlighted_image_color[row_index-2:row_index+2, :, :] = [255, 0, 0]
     highlighted_image_color[:, position, :] = [255, 0, 0]
 
-    ax[0].imshow(highlighted_image_color[row_index -HEIGHT:row_index+HEIGHT, :, :])
+    ax[0].imshow(highlighted_image_color[row_index -
+                 HEIGHT:row_index+HEIGHT, :, :])
     ax[1].plot(row_values)
     ax[2].plot(np.abs(central_diff))
     ax[3].plot(thresholded)
